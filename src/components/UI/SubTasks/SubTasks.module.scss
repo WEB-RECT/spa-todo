@@ -1,0 +1,41 @@
+
+.list {
+    width: 100%;
+}
+.wrapper {
+    width: 100%;
+    margin-bottom: 10px;
+}
+.events {
+    display: flex;
+    align-items: center;
+    margin-right: 15px;
+}
+.eventsItem {
+    width: 15px;
+    cursor: pointer;
+    margin-right: 5px;
+    svg, img, span {
+        width: 100%;
+    }
+}
+.item {
+    width: 100%;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    &:last-child {
+        margin-bottom: 0;
+    }
+}
+.checkbox {
+    width: 100%;
+}
+.rowEdit {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    .events {
+        margin-left: 15px;
+    }
+}

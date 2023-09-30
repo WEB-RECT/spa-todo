@@ -1,0 +1,25 @@
+
+.card {
+    width: 100%;
+    box-shadow: 0 0 10px #eaeaea;
+    border-radius: 10px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    flex-direction: column;
+}
+.top {
+    width: 100%;
+    padding: 10px;
+}
+.bottom {
+    padding: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-top: 1px solid #eaeaea;
+}
+
+@media (max-width: 1080px) {
+
+}

@@ -1,0 +1,56 @@
+
+.block {
+    width: 100%;
+}
+.dropzone {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    border-width: 2px;
+    border-color: #eeeeee;
+    border-style: dashed;
+    background-color: #fafafa;
+    color: #bdbdbd;
+    outline: none;
+    transition: border .24s ease-in-out;
+    border-radius: 10px;
+    cursor: pointer;
+}
+.files {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 16px;
+}
+.file {
+    display: inline-flex;
+    border-radius: 2px;
+    border: 1px solid #eaeaea;
+    margin-bottom: 8px;
+    margin-right: 8px;
+    width: 100px;
+    height: 100px;
+    padding: 4px;
+    position: relative;
+    .close {
+        position: absolute;
+        right: -7px;
+        top: -12px;
+        z-index: 2;
+        cursor: pointer;
+        background: #fff;
+    }
+}
+.fileInner {
+    display: flex;
+    min-width: 0;
+    overflow: hidden;
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+        display: block;
+    }
+}
