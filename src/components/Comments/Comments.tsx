@@ -12,6 +12,8 @@ interface IProps {
     root: TUid | null
 }
 
+const CLOSE_ADD_COMMENT = -1
+
 const Comments: FC<IProps> = ({root}) => {
 
     const {
@@ -21,7 +23,7 @@ const Comments: FC<IProps> = ({root}) => {
     const commentsItems = useAppSelector(commentsItemsGET)
     const activeTask = useAppSelector(activeTaskGET)
 
-    const [activeAddComment, setActiveAddComment] = useState<TUid | null>(null)
+    const [activeAddComment, setActiveAddComment] = useState<TUid | null | -1>(CLOSE_ADD_COMMENT)
     const [value, setValue] = useState<string>('')
 
     const items: IComment[] = useMemo(() => {
@@ -39,7 +41,7 @@ const Comments: FC<IProps> = ({root}) => {
 
         addCommentACTION(newComment)
         setValue('')
-        setActiveAddComment(null)
+        setActiveAddComment(-1)
     }
 
     return (
@@ -87,7 +89,7 @@ const Comments: FC<IProps> = ({root}) => {
                                                 <div
                                                     className={styles.eventsItem}
                                                     onClick={() => {
-                                                        setActiveAddComment(null)
+                                                        setActiveAddComment(CLOSE_ADD_COMMENT)
                                                     }}
                                                 >
                                                     <CloseOutlined/>
@@ -112,6 +114,50 @@ const Comments: FC<IProps> = ({root}) => {
 
                                 </React.Fragment>
                             ))
+                        }
+                        {
+                            root === null &&
+                            <div
+                                style={{
+                                    cursor: 'pointer',
+                                    fontWeight: 600
+                                }}
+                                onClick={() => setActiveAddComment(null)}
+                            >
+                                Добавить комментарий
+                            </div>
+                        }
+                        {
+                            (activeAddComment === null && root === null) &&
+                            <div className={styles.addComment}>
+                                <Input
+                                    value={value}
+                                    onChange={(e) => {
+                                        setValue(e.target.value)
+                                    }}
+                                    placeholder="Написать"
+                                />
+                                <div className={styles.events}>
+                                    <div
+                                        className={styles.eventsItem}
+                                        onClick={() => {
+                                            setActiveAddComment(CLOSE_ADD_COMMENT)
+                                        }}
+                                    >
+                                        <CloseOutlined/>
+                                    </div>
+                                    <div
+                                        className={styles.eventsItem}
+                                        style={{
+                                            opacity: value ? 1 : 0.5,
+                                            pointerEvents: value ? 'visible' : 'none',
+                                        }}
+                                        onClick={() => addComment(null)}
+                                    >
+                                        <CheckOutlined/>
+                                    </div>
+                                </div>
+                            </div>
                         }
                     </>
                     :

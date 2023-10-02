@@ -26,6 +26,8 @@ const CardTaskOpened: FC<IProps> = ({ activeTask }) => {
         setTimeWork(timeUnixConvertDuration( activeTask.date.work || 0, activeTask.date.end || Date.now()))
     }, 1000)
 
+    console.log(activeTask)
+
     return (
         <div className={styles.block}>
             {

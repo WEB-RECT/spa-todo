@@ -220,15 +220,11 @@ const Tasks = () => {
             subTasks: [],
             priority: false,
             name: '',
-            description: '',
+            description: editorRef.current.getContent(),
         };
 
         (Object.keys(widgetValue) as Array<TWidgetsTypeTasks>).forEach((key) => {
-            if (key === 'description') {
-                (task[key] as any) = editorRef.current.getContent()
-            } else {
-                (task[key] as any) = widgetValue[key].value
-            }
+            (task[key] as any) = widgetValue[key].value
         })
 
 
