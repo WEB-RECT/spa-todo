@@ -1,6 +1,5 @@
-import {ADD_COMMENT_ACTION, ADD_PROJECT_ACTION} from "../vars/vars";
-import {ICardProject} from "../../components/UI/Card/CardProject/CardProject.interface";
-import {IComment} from "../../components/Comments/Comment.inerface";
+import { IComment } from "../../components/Comments/Comment.inerface";
+import { ADD_COMMENT_ACTION } from "../vars/vars";
 
 export const addCommentACTION = (item: IComment) => ({
     type: ADD_COMMENT_ACTION,

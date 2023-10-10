@@ -1,126 +1,110 @@
-import React, {FC, useEffect, useState} from 'react';
-import styles from "./CardTaskOpened.module.scss"
-import {ICardTask} from "../CardTask/CardTask.interface";
-import SubTasks from "../../SubTasks/SubTasks";
-import FormItem from "../../Form/FormItem/FormItem";
-import {useActions, useAppSelector} from "../../../../customHook/redux";
-import {Typography} from "antd";
-import {timeUnixConvert, timeUnixConvertDuration} from "../../../../helpers/timeUnixConvert";
-import {clearInterval} from "timers";
+import { Typography } from "antd";
+import React, { FC, useState } from "react";
+import { useActions } from "../../../../customHook/redux";
+import {
+    timeUnixConvert,
+    timeUnixConvertDuration,
+} from "../../../../helpers/timeUnixConvert";
 import Comments from "../../../Comments/Comments";
-import {commentsItemsGET} from "../../../../redux/selectors/selectors";
+import FormItem from "../../Form/FormItem/FormItem";
+import SubTasks from "../../SubTasks/SubTasks";
+import { ICardTask } from "../CardTask/CardTask.interface";
+import styles from "./CardTaskOpened.module.scss";
 
 interface IProps {
-    activeTask: ICardTask
+    activeTask: ICardTask;
 }
 
 const CardTaskOpened: FC<IProps> = ({ activeTask }) => {
+    const { changeSubTasksACTION } = useActions();
 
-    const {
-        changeSubTasksACTION,
-    } = useActions()
+    const [timeWork, setTimeWork] = useState(
+        timeUnixConvertDuration(
+            activeTask.date.work || 0,
+            activeTask.date.end || Date.now(),
+        ),
+    );
 
-    const [timeWork, setTimeWork] = useState(timeUnixConvertDuration( activeTask.date.work || 0, activeTask.date.end || Date.now()))
+    setInterval(() => {
+        setTimeWork(
+            timeUnixConvertDuration(
+                activeTask.date.work || 0,
+                activeTask.date.end || Date.now(),
+            ),
+        );
+    }, 1000);
 
-    let interval = setInterval(() => {
-        setTimeWork(timeUnixConvertDuration( activeTask.date.work || 0, activeTask.date.end || Date.now()))
-    }, 1000)
-
-    console.log(activeTask)
+    console.log(activeTask);
 
     return (
         <div className={styles.block}>
-            {
-                styles.description &&
-                <FormItem
-                    label="Описание"
-                >
+            {styles.description && (
+                <FormItem label="Описание">
                     <div
                         className={styles.description}
                         dangerouslySetInnerHTML={{
-                            __html: activeTask.description
+                            __html: activeTask.description,
                         }}
-                    >
-                    </div>
+                    ></div>
                 </FormItem>
-            }
-            {
-                activeTask.subTasks.length > 0 &&
-                <FormItem
-                    label="Субзадачи"
-                >
+            )}
+            {activeTask.subTasks.length > 0 && (
+                <FormItem label="Субзадачи">
                     <SubTasks
                         tasks={activeTask.subTasks}
                         type="visible"
-                        onChange={(subTasks) => changeSubTasksACTION(activeTask.uid, subTasks)}
+                        onChange={(subTasks) =>
+                            changeSubTasksACTION(activeTask.uid, subTasks)
+                        }
                     />
                 </FormItem>
-            }
-            {
-                activeTask.files.length > 0 &&
-                <FormItem
-                    label="Прикрепленные файлы"
-                >
+            )}
+            {activeTask.files.length > 0 && (
+                <FormItem label="Прикрепленные файлы">
                     <div className={styles.files}>
-                        {
-                            activeTask.files.map((item, index) => (
-                                <div
-                                    key={item.preview + index + 'file'}
-                                    className={styles.file}
-                                >
-                                    <img
-                                        src={item.preview}
-                                        alt=""
-                                    />
-                                </div>
-                            ))
-                        }
+                        {activeTask.files.map((item, index) => (
+                            <div
+                                key={item.preview + index + "file"}
+                                className={styles.file}
+                            >
+                                <img
+                                    src={item.preview}
+                                    alt=""
+                                />
+                            </div>
+                        ))}
                     </div>
                 </FormItem>
-            }
+            )}
             {
-                <FormItem
-                    label="Время"
-                >
+                <FormItem label="Время">
                     <Typography.Text>
                         Создание: {timeUnixConvert(activeTask.date.create)}
                     </Typography.Text>
-                    <br/>
-                    {
-                        activeTask.date.work &&
+                    <br />
+                    {activeTask.date.work && (
                         <>
                             <Typography.Text>
                                 Время в работе: {timeWork}
                             </Typography.Text>
-                            <br/>
+                            <br />
                         </>
-                    }
-                    {
-                        activeTask.date.end &&
+                    )}
+                    {activeTask.date.end && (
                         <Typography.Text>
                             Закончен: {timeUnixConvert(activeTask.date.end)}
                         </Typography.Text>
-                    }
+                    )}
                 </FormItem>
             }
             {
-                <FormItem
-                    label="Статус"
-                >
-                    <Typography.Text>
-                        {
-                            activeTask.status
-                        }
-                    </Typography.Text>
+                <FormItem label="Статус">
+                    <Typography.Text>{activeTask.status}</Typography.Text>
                 </FormItem>
             }
             {
-                <FormItem
-                    label="Комментарии"
-                >
-                    <Comments
-                        root={null}
-                    />
+                <FormItem label="Комментарии">
+                    <Comments root={null} />
                 </FormItem>
             }
         </div>

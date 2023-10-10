@@ -1,64 +1,60 @@
-import React, {FC, useState} from 'react';
-import styles from "./CardTask.module.scss"
-import {ICardTask} from "./CardTask.interface";
-import {useActions} from "../../../../customHook/redux";
-import {EditOutlined, MoreOutlined} from "@ant-design/icons";
-import {Popover} from "antd";
+import { EditOutlined, MoreOutlined } from "@ant-design/icons";
+import { Popover } from "antd";
 import classNames from "classnames";
-import PopoverItems, {IPopoverItems} from "../../PopoverItems/PopoverItems";
-import {timeUnixConvert} from "../../../../helpers/timeUnixConvert";
-import {useDrag} from "react-dnd";
+import React, { FC, useState } from "react";
+import { useDrag } from "react-dnd";
+import { useActions } from "../../../../customHook/redux";
+import { timeUnixConvert } from "../../../../helpers/timeUnixConvert";
+import PopoverItems, { IPopoverItems } from "../../PopoverItems/PopoverItems";
+import { ICardTask } from "./CardTask.interface";
+import styles from "./CardTask.module.scss";
 
 interface IProps {
-    item: ICardTask
+    item: ICardTask;
 }
 
 const popoverItems: IPopoverItems[] = [
     {
-        text: 'Редактировать',
+        text: "Редактировать",
         icon: <EditOutlined />,
-        type: 'edit'
-    }
-]
+        type: "edit",
+    },
+];
 
 const CardTask: FC<IProps> = ({ item }) => {
-
-    const {
-        changeActiveTaskACTION,
-        editTaskACTION,
-        updateColToTaskACTION,
-    } = useActions()
+    const { changeActiveTaskACTION, editTaskACTION, updateColToTaskACTION } =
+        useActions();
 
     const [{ isDragging }, drag] = useDrag(() => ({
-        type: 'Our first type',
+        type: "Our first type",
         item: {
-            card: item
+            card: item,
         },
         end: (cardTask, monitor) => {
-            const dropResult: any = monitor.getDropResult()
+            const dropResult: any = monitor.getDropResult();
 
             if (dropResult) {
-                updateColToTaskACTION(dropResult.col, cardTask.card)
+                updateColToTaskACTION(dropResult.col, cardTask.card);
             }
 
-            return dropResult
+            return dropResult;
         },
         collect: (monitor) => ({
-            isDragging: monitor.isDragging()
-        })
-    }))
+            isDragging: monitor.isDragging(),
+        }),
+    }));
 
-    const [open, setOpen] = useState<boolean>(false)
+    const [open, setOpen] = useState<boolean>(false);
 
     const handleOpenChange = (newOpen: boolean) => {
-        setOpen(newOpen)
-    }
+        setOpen(newOpen);
+    };
 
     const checkClickTypePopover = (type: string) => {
-        if (type === 'edit') {
-            editTaskACTION(item)
+        if (type === "edit") {
+            editTaskACTION(item);
         }
-    }
+    };
 
     return (
         <>
@@ -66,12 +62,12 @@ const CardTask: FC<IProps> = ({ item }) => {
                 ref={drag}
                 className={styles.card}
                 onClick={(e) => {
-                    const target = e.target as HTMLDivElement
-                    const closest = target.closest(`.${styles.params}`)
-                    const closestPopover = target.closest(`.ant-popover`)
+                    const target = e.target as HTMLDivElement;
+                    const closest = target.closest(`.${styles.params}`);
+                    const closestPopover = target.closest(".ant-popover");
 
                     if (!closest && !closestPopover) {
-                        changeActiveTaskACTION(item)
+                        changeActiveTaskACTION(item);
                     }
                 }}
                 style={{
@@ -79,18 +75,14 @@ const CardTask: FC<IProps> = ({ item }) => {
                 }}
             >
                 <div className={styles.top}>
-                    <div className={styles.title}>
-                        {
-                            item.name
-                        }
-                    </div>
+                    <div className={styles.title}>{item.name}</div>
                     <Popover
                         content={
                             <PopoverItems
                                 items={popoverItems}
                                 onClick={(type) => {
-                                    checkClickTypePopover(type)
-                                    setOpen(false)
+                                    checkClickTypePopover(type);
+                                    setOpen(false);
                                 }}
                             />
                         }
@@ -101,7 +93,7 @@ const CardTask: FC<IProps> = ({ item }) => {
                     >
                         <div
                             className={classNames(styles.params, {
-                                [styles.active]: open
+                                [styles.active]: open,
                             })}
                         >
                             <MoreOutlined />
@@ -110,16 +102,9 @@ const CardTask: FC<IProps> = ({ item }) => {
                 </div>
                 <div className={styles.row}>
                     <div className={styles.date}>
-                        {
-                            timeUnixConvert(item.date.create)
-                        }
+                        {timeUnixConvert(item.date.create)}
                     </div>
-                    {
-                        item.priority &&
-                        <div className={styles.priority}>
-                            🔥
-                        </div>
-                    }
+                    {item.priority && <div className={styles.priority}>🔥</div>}
                 </div>
             </div>
         </>

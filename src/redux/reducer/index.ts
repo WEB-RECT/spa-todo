@@ -1,7 +1,7 @@
-import {combineReducers} from "redux";
+import { combineReducers } from "redux";
+import comments from "./comments";
 import projects from "./projects";
 import tasks from "./tasks";
-import comments from "./comments";
 
 const rootReducer = combineReducers({
     projects,

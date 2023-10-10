@@ -1,208 +1,220 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {useNavigate, useParams} from "react-router-dom";
-import styles from "../styles/pages/tasks.module.scss"
-import {Button, Checkbox, Form, Input, Modal, Row, Typography} from "antd";
+import { Editor } from "@tinymce/tinymce-react";
+import { Button, Checkbox, Input, Modal, Typography } from "antd";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Helmet } from "react-helmet";
+import { useNavigate, useParams } from "react-router-dom";
+import { v4 as uuidV4 } from "uuid";
 import Sidebar from "../components/Sidebar/Sidebar";
-import {TUnixDate, TUid} from "../types/helperTypes/helperTypes";
-import {v4 as uuidV4} from "uuid";
-import useValidate, {TValidateType} from "../customHook/useValidate";
-import {newData} from "../helpers/newData";
-import FormItem from "../components/UI/Form/FormItem/FormItem";
-import Files from "../components/UI/Form/Files/Files";
-import SubTasks from "../components/UI/SubTasks/SubTasks";
-import {activeTaskGET, editTaskGET, projectsItemsGET, tasksItemsGET} from "../redux/selectors/selectors";
-import {useActions, useAppSelector} from "../customHook/redux";
-import {ICardTask, TCardTaskStatus} from "../components/UI/Card/CardTask/CardTask.interface";
-import ColTasks from "../components/UI/Cards/ColTasks/ColTasks";
-import useWidgets, {EUseWidgets, TWidgetsType} from "../customHook/useWidgets";
+import {
+    ICardTask,
+    TCardTaskStatus,
+} from "../components/UI/Card/CardTask/CardTask.interface";
 import CardTaskOpened from "../components/UI/Card/CardTaskOpened/CardTaskOpened";
-import { Editor } from '@tinymce/tinymce-react';
-import {Helmet} from "react-helmet";
-import {useDrop} from "react-dnd";
+import ColTasks from "../components/UI/Cards/ColTasks/ColTasks";
+import Files from "../components/UI/Form/Files/Files";
+import FormItem from "../components/UI/Form/FormItem/FormItem";
+import SubTasks from "../components/UI/SubTasks/SubTasks";
+import { useActions, useAppSelector } from "../customHook/redux";
+import useValidate, { TValidateType } from "../customHook/useValidate";
+import useWidgets, {
+    EUseWidgets,
+    TWidgetsType,
+} from "../customHook/useWidgets";
+import { newData } from "../helpers/newData";
+import {
+    activeTaskGET,
+    editTaskGET,
+    projectsItemsGET,
+    tasksItemsGET,
+} from "../redux/selectors/selectors";
+import styles from "../styles/pages/tasks.module.scss";
+import { TUid } from "../types/helperTypes/helperTypes";
 
 export interface IColTasksData {
-    name: TCardTaskStatus
-    uid: TUid
+    name: TCardTaskStatus;
+    uid: TUid;
 }
 
-type TWidgetsTypeTasks = TWidgetsType<EUseWidgets.tasks>
+type TWidgetsTypeTasks = TWidgetsType<EUseWidgets.tasks>;
 type TWidgetValue = {
     [K in TWidgetsTypeTasks]: {
-        value: any | any[]
-    }
-}
+        value: any | any[];
+    };
+};
 
 interface IIsEditCardTask {
-    status: boolean
-    cardTask: ICardTask
+    status: boolean;
+    cardTask: ICardTask;
 }
 
 export const colTasks: IColTasksData[] = [
     {
         name: "Queue",
-        uid: '111'
+        uid: "111",
     },
     {
         name: "Development",
-        uid: '222'
+        uid: "222",
     },
     {
         name: "Done",
-        uid: '333'
+        uid: "333",
     },
-]
+];
 
 const Tasks = () => {
-
-    const {uid: paramsUid} = useParams()
-    const navigate = useNavigate()
+    const { uid: paramsUid } = useParams();
+    const navigate = useNavigate();
 
     const {
         addTasksACTION,
         changeActiveTaskACTION,
         editTaskACTION,
         updateTaskACTION,
-    } = useActions()
+    } = useActions();
 
-    const widgets = useWidgets<EUseWidgets.tasks>(EUseWidgets.tasks)
-    const needValidate: TWidgetsTypeTasks[] = widgets.reduce<TWidgetsTypeTasks[]>((acc, item) => {
+    const widgets = useWidgets<EUseWidgets.tasks>(EUseWidgets.tasks);
+    const needValidate: TWidgetsTypeTasks[] = widgets.reduce<
+        TWidgetsTypeTasks[]
+    >((acc, item) => {
         if (item.validateType) {
-            acc.push(item.type)
+            acc.push(item.type);
         }
 
-        return acc
-    }, [])
+        return acc;
+    }, []);
 
-    const [
-        resultValidate,
-        setResultValidate,
-        clearValidateValue
-    ] = useValidate(needValidate)
+    const [resultValidate, setResultValidate, clearValidateValue] =
+        useValidate(needValidate);
 
-    const tasksItems = useAppSelector(tasksItemsGET)
-    const activeTask = useAppSelector(activeTaskGET)
-    const projectsItems = useAppSelector(projectsItemsGET)
-    const editTask = useAppSelector(editTaskGET)
+    const tasksItems = useAppSelector(tasksItemsGET);
+    const activeTask = useAppSelector(activeTaskGET);
+    const projectsItems = useAppSelector(projectsItemsGET);
+    const editTask = useAppSelector(editTaskGET);
 
-    const [colTasksData, setColTasksData] = useState<IColTasksData[]>(colTasks)
-    const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
-    const [isModalOpenVisibleCard, setIsModalOpenVisibleCard] = useState<boolean>(false)
-    const [widgetValue, setWidgetValue] = useState<TWidgetValue>({} as TWidgetValue)
-    const [currentParamsUid, setCurrentParamsUid] = useState<TUid>('')
-    const [isEditCardTask, setIsEditCardTask] = useState<IIsEditCardTask>({} as IIsEditCardTask)
-    const [valueFind, setValueFind] = useState<string>('')
+    const [colTasksData, setColTasksData] = useState<IColTasksData[]>(colTasks);
+    const [isModalOpen, setIsModalOpen] = useState<boolean>(false);
+    const [isModalOpenVisibleCard, setIsModalOpenVisibleCard] =
+        useState<boolean>(false);
+    const [widgetValue, setWidgetValue] = useState<TWidgetValue>(
+        {} as TWidgetValue,
+    );
+    const [currentParamsUid, setCurrentParamsUid] = useState<TUid>("");
+    const [isEditCardTask, setIsEditCardTask] = useState<IIsEditCardTask>(
+        {} as IIsEditCardTask,
+    );
+    const [valueFind, setValueFind] = useState<string>("");
 
-    const editorRef = useRef<any>(null)
+    const editorRef = useRef<any>(null);
 
     // проверка проекта
     useLayoutEffect(() => {
         if (paramsUid) {
-            const check = projectsItems.find(item => item.uid === paramsUid)
+            const check = projectsItems.find((item) => item.uid === paramsUid);
             if (check) {
-                setCurrentParamsUid(paramsUid)
+                setCurrentParamsUid(paramsUid);
             } else {
-                setCurrentParamsUid('')
+                setCurrentParamsUid("");
                 setTimeout(() => {
-                    navigate('/')
-                }, 0)
+                    navigate("/");
+                }, 0);
             }
         } else {
             setTimeout(() => {
-                navigate('/')
-            }, 0)
+                navigate("/");
+            }, 0);
         }
-    }, [paramsUid])
+    }, [paramsUid]);
 
     // включение редактировании карточки
     useEffect(() => {
         if (editTask) {
             setIsEditCardTask({
                 status: true,
-                cardTask: editTask
-            })
+                cardTask: editTask,
+            });
 
             const currentWidgetValue: TWidgetValue = {} as TWidgetValue;
 
             (Object.keys(editTask) as Array<keyof ICardTask>).forEach((key) => {
                 if (
-                    key === "name"
-                    || key === "description"
-                    || key === "priority"
-                    || key === "subTasks"
-                    || key === "files"
+                    key === "name" ||
+                    key === "description" ||
+                    key === "priority" ||
+                    key === "subTasks" ||
+                    key === "files"
                 ) {
                     currentWidgetValue[key] = {
-                        value: editTask[key]
-                    }
+                        value: editTask[key],
+                    };
                 }
-                if (needValidate.find(it => it === key)) {
-                    let currentValidateType: TValidateType = 'length'
+                if (needValidate.find((it) => it === key)) {
+                    const currentValidateType: TValidateType = "length";
 
                     setResultValidate({
                         validateType: currentValidateType,
                         type: key,
                         value: editTask[key],
-                    })
+                    });
                 }
-            })
+            });
 
-            setWidgetValue(currentWidgetValue)
-            setIsModalOpen(true)
+            setWidgetValue(currentWidgetValue);
+            setIsModalOpen(true);
         }
-    }, [editTask])
+    }, [editTask]);
 
     // при клике на карточку появляется модалка
     useEffect(() => {
         if (activeTask) {
-            setIsModalOpenVisibleCard(true)
+            setIsModalOpenVisibleCard(true);
         }
-    }, [activeTask])
+    }, [activeTask]);
 
     const showModal = () => {
-        setIsModalOpen(!isModalOpen)
-    }
+        setIsModalOpen(!isModalOpen);
+    };
 
     const closeModal = () => {
-        setIsModalOpen(false)
-        setWidgetValue({} as TWidgetValue)
-        clearValidateValue()
-    }
+        setIsModalOpen(false);
+        setWidgetValue({} as TWidgetValue);
+        clearValidateValue();
+    };
 
     const closeUpdate = () => {
-        setIsModalOpen(false)
-        setWidgetValue({} as TWidgetValue)
-        editTaskACTION(null)
-        clearValidateValue()
-        setIsEditCardTask({} as IIsEditCardTask)
-    }
+        setIsModalOpen(false);
+        setWidgetValue({} as TWidgetValue);
+        editTaskACTION(null);
+        clearValidateValue();
+        setIsEditCardTask({} as IIsEditCardTask);
+    };
 
     const closeVisibleModal = () => {
-        changeActiveTaskACTION(null)
-        setIsModalOpenVisibleCard(false)
-    }
+        changeActiveTaskACTION(null);
+        setIsModalOpenVisibleCard(false);
+    };
 
     const changeValueWidget = (type: TWidgetsTypeTasks, value: any) => {
-
         if (needValidate.find((it) => it === type)) {
-            let currentValidateType: TValidateType = 'length'
+            const currentValidateType: TValidateType = "length";
 
             setResultValidate({
                 validateType: currentValidateType,
                 type,
                 value,
-            })
+            });
         }
 
-        setWidgetValue(prev => {
-            const currentPrev = newData<TWidgetValue>(prev)
+        setWidgetValue((prev) => {
+            const currentPrev = newData<TWidgetValue>(prev);
             currentPrev[type] = {
                 ...currentPrev[type],
-                value: value
-            }
+                value: value,
+            };
 
-            return currentPrev
-        })
-    }
+            return currentPrev;
+        });
+    };
 
     const createTask = () => {
         const task: ICardTask = {
@@ -219,44 +231,45 @@ const Tasks = () => {
             files: [],
             subTasks: [],
             priority: false,
-            name: '',
+            name: "",
             description: editorRef.current.getContent(),
         };
 
-        (Object.keys(widgetValue) as Array<TWidgetsTypeTasks>).forEach((key) => {
-            (task[key] as any) = widgetValue[key].value
-        })
+        (Object.keys(widgetValue) as Array<TWidgetsTypeTasks>).forEach(
+            (key) => {
+                (task[key] as any) = widgetValue[key].value;
+            },
+        );
 
-
-        addTasksACTION(task)
-        setWidgetValue({} as TWidgetValue)
-        showModal()
-        clearValidateValue()
-    }
+        addTasksACTION(task);
+        setWidgetValue({} as TWidgetValue);
+        showModal();
+        clearValidateValue();
+    };
     const updateTask = () => {
         const currentTask: ICardTask = {
-            ...isEditCardTask.cardTask
+            ...isEditCardTask.cardTask,
         };
 
-        (Object.keys(widgetValue) as Array<TWidgetsTypeTasks>).forEach((key) => {
-            if (key === 'description') {
-                (currentTask[key] as any) = editorRef.current.getContent()
-            } else {
-                (currentTask[key] as any) = widgetValue[key].value
-            }
-        })
+        (Object.keys(widgetValue) as Array<TWidgetsTypeTasks>).forEach(
+            (key) => {
+                if (key === "description") {
+                    (currentTask[key] as any) = editorRef.current.getContent();
+                } else {
+                    (currentTask[key] as any) = widgetValue[key].value;
+                }
+            },
+        );
 
-        updateTaskACTION(currentTask)
+        updateTaskACTION(currentTask);
 
-        closeUpdate()
-    }
+        closeUpdate();
+    };
 
     return (
         <>
             <Helmet>
-                <title>
-                    Задачи
-                </title>
+                <title>Задачи</title>
             </Helmet>
             <div className={styles.section}>
                 <Sidebar
@@ -266,9 +279,7 @@ const Tasks = () => {
                 <div className={styles.content}>
                     <div className={styles.contentTop}>
                         <div className={styles.contentTopInfo}>
-                            <Typography.Title
-                                level={3}
-                            >
+                            <Typography.Title level={3}>
                                 Задачи
                             </Typography.Title>
                             <Input
@@ -286,29 +297,27 @@ const Tasks = () => {
                                 </Button>
                             </div>
                         </div>
-
                     </div>
                     <div className={styles.contentBlock}>
-                        {
-                            colTasksData.map((item) => (
-                                <ColTasks
-                                    key={item.uid + 'tasks-col'}
-                                    item={item}
-                                    tasksItems={tasksItems}
-                                    currentParamsUid={currentParamsUid}
-                                    valueFind={valueFind}
-                                />
-                            ))
-                        }
+                        {colTasksData.map((item) => (
+                            <ColTasks
+                                key={item.uid + "tasks-col"}
+                                item={item}
+                                tasksItems={tasksItems}
+                                currentParamsUid={currentParamsUid}
+                                valueFind={valueFind}
+                            />
+                        ))}
                     </div>
                 </div>
             </div>
 
             {/* просмотр карточки */}
-            {
-                activeTask &&
+            {activeTask && (
                 <Modal
-                    title={`${activeTask.priority ? '🔥' : ''} ${activeTask.name}`}
+                    title={`${activeTask.priority ? "🔥" : ""} ${
+                        activeTask.name
+                    }`}
                     okText=""
                     cancelText=""
                     open={isModalOpenVisibleCard}
@@ -316,122 +325,155 @@ const Tasks = () => {
                     onCancel={closeVisibleModal}
                     footer={null}
                 >
-                    <CardTaskOpened
-                        activeTask={activeTask}
-                    />
+                    <CardTaskOpened activeTask={activeTask} />
                 </Modal>
-            }
+            )}
 
             {/* редактирование/создание */}
             <Modal
-                title={isEditCardTask.status ? "Редактирование карточки" : "Создание задачи"}
-                okText={isEditCardTask.status ? "Обновить карточку" : "Создать задачу"}
+                title={
+                    isEditCardTask.status
+                        ? "Редактирование карточки"
+                        : "Создание задачи"
+                }
+                okText={
+                    isEditCardTask.status
+                        ? "Обновить карточку"
+                        : "Создать задачу"
+                }
                 cancelText="Отменить"
                 open={isModalOpen}
                 onOk={isEditCardTask.status ? updateTask : createTask}
                 onCancel={isEditCardTask.status ? closeUpdate : closeModal}
                 okButtonProps={{
-                    disabled: !resultValidate.allValidated
+                    disabled: !resultValidate.allValidated,
                 }}
             >
-                {
-                    widgets.map((widget) => (
-                        <React.Fragment
-                            key={widget.type + widget.widgetType + 'создание'}
-                        >
-                            <FormItem
-                                label={widget.content.label}
-                            >
-                                {
-                                    (widget.type === 'name')
-                                        ?
-                                        <Input
-                                            status={
-                                                resultValidate.list.hasOwnProperty(widget.type)
-                                                    ?
-                                                    !resultValidate.list[widget.type].status ? 'error' : undefined
-                                                    :
-                                                    undefined
-                                            }
-                                            className={styles.input}
-                                            placeholder={widget.content.placeholder}
-                                            value={widgetValue[widget.type]?.value || ''}
-                                            onChange={(e) => {
-                                                changeValueWidget(widget.type, e.target.value)
-                                            }}
-                                        />
-                                        :
-                                        ''
-                                }
-                                {
-                                    (widget.type === 'description')
-                                        ?
-                                        <Editor
-                                            apiKey={process.env.REACT_APP_TINY_API}
-                                            onInit={(evt, editor) => editorRef.current = editor}
-                                            initialValue={widgetValue[widget.type]?.value || ''}
-                                            init={{
-                                                height: 300,
-                                                menubar: false,
-                                                plugins: [
-                                                    'advlist', 'autolink', 'lists', 'link', 'image', 'charmap', 'preview',
-                                                    'anchor', 'searchreplace', 'visualblocks', 'code', 'fullscreen',
-                                                    'insertdatetime', 'media', 'table', 'code', 'help', 'wordcount'
-                                                ],
-                                                toolbar: 'undo redo | blocks | ' +
-                                                    'bold italic forecolor | alignleft aligncenter ' +
-                                                    'alignright alignjustify | bullist numlist outdent indent | ' +
-                                                    'removeformat | help',
-                                                content_style: 'body { font-family:Helvetica,Arial,sans-serif; font-size:14px }'
-                                            }}
-                                        />
-                                        :
-                                        ''
-                                }
-                                {
-                                    (widget.widgetType === 'checkbox')
-                                        ?
-                                        <Checkbox
-                                            checked={widgetValue[widget.type]?.value || false}
-                                            onChange={(e) => {
-                                                changeValueWidget(widget.type, e.target.checked)
-                                            }}
-                                        >
-                                            {
-                                                widgetValue[widget.type]?.value ? 'Да' : 'Нет'
-                                            }
-                                        </Checkbox>
-                                        :
-                                        ''
-                                }
-                                {
-                                    (widget.widgetType === 'subTasks')
-                                        ?
-                                        <SubTasks
-                                            tasks={widgetValue[widget.type]?.value || []}
-                                            onChange={(subTasks) => {
-                                                changeValueWidget(widget.type, subTasks)
-                                            }}
-                                        />
-                                        :
-                                        ''
-                                }
-                                {
-                                    (widget.widgetType === 'files')
-                                        ?
-                                        <Files
-                                            value={widgetValue[widget.type]?.value || []}
-                                            onChange={(files) => {
-                                                changeValueWidget(widget.type, files)
-                                            }}
-                                        />
-                                        :
-                                        ''
-                                }
-                            </FormItem>
-                        </React.Fragment>
-                    ))
-                }
+                {widgets.map((widget) => (
+                    <React.Fragment
+                        key={widget.type + widget.widgetType + "создание"}
+                    >
+                        <FormItem label={widget.content.label}>
+                            {widget.type === "name" ? (
+                                <Input
+                                    status={
+                                        resultValidate.list.hasOwnProperty(
+                                            widget.type,
+                                        )
+                                            ? !resultValidate.list[widget.type]
+                                                  .status
+                                                ? "error"
+                                                : undefined
+                                            : undefined
+                                    }
+                                    className={styles.input}
+                                    placeholder={widget.content.placeholder}
+                                    value={
+                                        widgetValue[widget.type]?.value || ""
+                                    }
+                                    onChange={(e) => {
+                                        changeValueWidget(
+                                            widget.type,
+                                            e.target.value,
+                                        );
+                                    }}
+                                />
+                            ) : (
+                                ""
+                            )}
+                            {widget.type === "description" ? (
+                                <Editor
+                                    apiKey={process.env.REACT_APP_TINY_API}
+                                    onInit={(evt, editor) =>
+                                        (editorRef.current = editor)
+                                    }
+                                    initialValue={
+                                        widgetValue[widget.type]?.value || ""
+                                    }
+                                    init={{
+                                        height: 300,
+                                        menubar: false,
+                                        plugins: [
+                                            "advlist",
+                                            "autolink",
+                                            "lists",
+                                            "link",
+                                            "image",
+                                            "charmap",
+                                            "preview",
+                                            "anchor",
+                                            "searchreplace",
+                                            "visualblocks",
+                                            "code",
+                                            "fullscreen",
+                                            "insertdatetime",
+                                            "media",
+                                            "table",
+                                            "code",
+                                            "help",
+                                            "wordcount",
+                                        ],
+                                        toolbar:
+                                            "undo redo | blocks | " +
+                                            "bold italic forecolor | alignleft aligncenter " +
+                                            "alignright alignjustify | bullist numlist outdent indent | " +
+                                            "removeformat | help",
+                                        content_style:
+                                            "body { font-family:Helvetica,Arial,sans-serif; font-size:14px }",
+                                    }}
+                                />
+                            ) : (
+                                ""
+                            )}
+                            {widget.widgetType === "checkbox" ? (
+                                <Checkbox
+                                    checked={
+                                        widgetValue[widget.type]?.value || false
+                                    }
+                                    onChange={(e) => {
+                                        changeValueWidget(
+                                            widget.type,
+                                            e.target.checked,
+                                        );
+                                    }}
+                                >
+                                    {widgetValue[widget.type]?.value
+                                        ? "Да"
+                                        : "Нет"}
+                                </Checkbox>
+                            ) : (
+                                ""
+                            )}
+                            {widget.widgetType === "subTasks" ? (
+                                <SubTasks
+                                    tasks={
+                                        widgetValue[widget.type]?.value || []
+                                    }
+                                    onChange={(subTasks) => {
+                                        changeValueWidget(
+                                            widget.type,
+                                            subTasks,
+                                        );
+                                    }}
+                                />
+                            ) : (
+                                ""
+                            )}
+                            {widget.widgetType === "files" ? (
+                                <Files
+                                    value={
+                                        widgetValue[widget.type]?.value || []
+                                    }
+                                    onChange={(files) => {
+                                        changeValueWidget(widget.type, files);
+                                    }}
+                                />
+                            ) : (
+                                ""
+                            )}
+                        </FormItem>
+                    </React.Fragment>
+                ))}
             </Modal>
         </>
     );

@@ -1,0 +1,9 @@
+{
+    "trailingComma": "all",
+    "tabWidth": 4,
+    "bracketSpacing": true,
+    "bracketSameLine": false,
+    "organizeImportsSkipDestructiveCodeActions": false,
+    "singleAttributePerLine": true,
+    "plugins": ["prettier-plugin-organize-imports"]
+}
