@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/spa-todo/static/css/main.1f2a7ff8.css",
+    "main.js": "/spa-todo/static/js/main.b6a041ea.js",
+    "index.html": "/spa-todo/index.html",
+    "main.1f2a7ff8.css.map": "/spa-todo/static/css/main.1f2a7ff8.css.map",
+    "main.b6a041ea.js.map": "/spa-todo/static/js/main.b6a041ea.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.1f2a7ff8.css",
+    "static/js/main.b6a041ea.js"
+  ]
+}
